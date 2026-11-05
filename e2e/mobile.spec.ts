@@ -14,7 +14,7 @@ const SIX = [
 
 test.beforeEach(async ({ page }) => {
   await seed(page, SIX);
-  await page.goto('/');
+  await page.goto('./');
   await expect(page.getByRole('article')).toHaveCount(6);
 });
 

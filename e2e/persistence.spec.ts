@@ -4,7 +4,7 @@ import { addCity, cardNames } from './helpers';
 test.use({ timezoneId: 'Europe/London', locale: 'en-GB' });
 
 test('everything the user sets survives a reload (AC7, AC14)', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await expect(page.getByRole('article', { name: 'London' })).toBeVisible();
   await expect(page.getByRole('article', { name: 'London' }).getByText('You')).toBeVisible();
 
@@ -52,7 +52,7 @@ test('everything the user sets survives a reload (AC7, AC14)', async ({ page }) 
 });
 
 test('pointer drag reorders cards', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await addCity(page, 'chennai', /Chennai, Tamil Nadu, India/);
   const from = await page.getByRole('button', { name: 'Reorder Chennai' }).boundingBox();
   const to = await page.getByRole('article', { name: 'London' }).boundingBox();

@@ -7,7 +7,7 @@ test('opening a share link merges cities without duplicates (AC13)', async ({ br
   const a = await sender.newPage();
   await seed(a, ['sydney-new-south-wales-au', 'chennai-tamil-nadu-in']);
   await a.addInitScript(() => Object.defineProperty(navigator, 'share', { value: undefined }));
-  await a.goto('/');
+  await a.goto('./');
   await a.getByRole('button', { name: 'Share' }).click();
   await expect(a.getByText('Link copied')).toBeVisible();
   const url = await a.evaluate(() => navigator.clipboard.readText());
