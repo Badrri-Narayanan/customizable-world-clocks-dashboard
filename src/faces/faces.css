@@ -1,0 +1,45 @@
+.face { display: flex; align-items: center; justify-content: center; color: var(--face-fg); }
+
+/* Analog (react-clock) */
+.face--analog .react-clock__face { background: var(--face-bg); border: 2px solid var(--face-fg); }
+.face--analog .react-clock__mark__body,
+.face--analog .react-clock__hand__body { background-color: var(--face-fg); }
+.face--analog .react-clock__mark__number { color: var(--face-fg); font-family: Georgia, 'Times New Roman', serif; font-size: 0.95em; }
+.face--analog .react-clock__second-hand__body { background-color: var(--accent-red); }
+.face--minimal .react-clock__face { border-width: 1px; border-color: var(--border); }
+.face--minimal .react-clock__mark__body { background-color: var(--muted); }
+.face--night { --face-bg: var(--night-bg); --face-fg: var(--night-fg); }
+
+/* Modern digital */
+.digital { text-align: center; line-height: 1; }
+.digital__time { font-size: 3.4rem; font-weight: 200; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.digital__ampm { font-size: 1rem; margin-left: 0.25rem; color: var(--muted); font-weight: 500; }
+.digital__date { margin-top: 0.6rem; font-size: 0.85rem; color: var(--muted); }
+
+/* Flip */
+.flip { display: flex; gap: 0.3rem; align-items: center; perspective: 300px; }
+.flip__tile {
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  width: 2.6rem; height: 3.6rem; border-radius: 0.5rem; font-size: 2.4rem; font-weight: 700;
+  background: var(--flip-bg); color: var(--flip-fg); box-shadow: 0 3px 8px rgb(0 0 0 / 0.25);
+  font-variant-numeric: tabular-nums;
+}
+.flip__tile::after { content: ''; position: absolute; inset: 50% 0 auto; height: 2px; background: rgb(0 0 0 / 0.55); }
+.flip--animating { animation: flip 0.6s ease-in-out; }
+.flip__colon { font-size: 2rem; font-weight: 700; }
+.flip__ampm { font-size: 0.8rem; margin-left: 0.2rem; color: var(--muted); font-weight: 600; }
+@keyframes flip { 0% { transform: rotateX(0); } 50% { transform: rotateX(-90deg); } 100% { transform: rotateX(0); } }
+
+/* Retro LCD */
+.lcd {
+  background: #9fae8c; color: #1d2618; border: 6px solid #3b4033; border-radius: 0.7rem;
+  padding: 0.5rem 1rem; box-shadow: inset 0 0 14px rgb(0 0 0 / 0.3);
+  font-family: 'DS-Digital', 'Courier New', ui-monospace, monospace; text-align: center;
+}
+.face--night .lcd { background: #24321f; color: #9cff8a; text-shadow: 0 0 6px rgb(156 255 138 / 0.6); }
+.lcd__date { font-size: 0.75rem; letter-spacing: 0.15em; opacity: 0.8; }
+.lcd__time { font-size: 2.6rem; font-weight: 700; letter-spacing: 0.08em; font-variant-numeric: tabular-nums; }
+.lcd__sec { font-size: 1.2rem; margin-left: 0.2rem; }
+.lcd__ampm { font-size: 0.8rem; margin-left: 0.3rem; }
+
+@media (prefers-reduced-motion: reduce) { .flip--animating { animation: none; } }

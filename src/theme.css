@@ -1,0 +1,84 @@
+:root {
+  color-scheme: light;
+  --bg: #eef1f6;
+  --bg-grad: radial-gradient(1200px 600px at 10% -10%, #dfe8ff 0%, transparent 60%),
+    radial-gradient(900px 500px at 110% 0%, #ffe9d6 0%, transparent 55%);
+  --surface: #ffffff;
+  --surface-2: #f6f7fb;
+  --fg: #1b1f2a;
+  --muted: #687083;
+  --border: #e2e6ee;
+  --accent: #3b6fd8;
+  --accent-fg: #ffffff;
+  --accent-soft: #e6eeff;
+  --accent-red: #e0483e;
+  --shadow: 0 1px 2px rgb(16 24 40 / 0.06), 0 8px 24px rgb(16 24 40 / 0.06);
+  --face-bg: #ffffff;
+  --face-fg: #1b1f2a;
+  --night-bg: #232842;
+  --night-fg: #e8eaf6;
+  --night-card: linear-gradient(180deg, #f1f2fb 0%, #e7e9f7 100%);
+  --flip-bg: #1d2029;
+  --flip-fg: #f4f4f6;
+  --work-bg: #dff3e5; --work-fg: #19703a;
+  --morning-bg: #fff4d6; --morning-fg: #8a5a00;
+  --evening-bg: #fde7d9; --evening-fg: #9a4a12;
+  --asleep-bg: #e6e7f4; --asleep-fg: #444a78;
+  --weekend-bg: #ece4fb; --weekend-fg: #5b3aa6;
+  --danger: #c2372d;
+  --radius: 18px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #0d1020;
+    --bg-grad: radial-gradient(1000px 600px at 0% -10%, #1c2550 0%, transparent 60%),
+      radial-gradient(800px 500px at 110% 0%, #2a1c3d 0%, transparent 55%);
+    --surface: #171b2e;
+    --surface-2: #1e2339;
+    --fg: #e9ebf5;
+    --muted: #9aa1b8;
+    --border: #2a3050;
+    --accent: #7aa2ff;
+    --accent-fg: #0d1020;
+    --accent-soft: #23305a;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 30px rgb(0 0 0 / 0.35);
+    --face-bg: #f7f8fc;
+    --face-fg: #1b1f2a;
+    --night-bg: #0b0e1c;
+    --night-card: linear-gradient(180deg, #151933 0%, #10142a 100%);
+    --flip-bg: #0b0d14;
+    --work-bg: #163a25; --work-fg: #8fe0aa;
+    --morning-bg: #3b3012; --morning-fg: #f3cf6b;
+    --evening-bg: #3d2416; --evening-fg: #f5ad7c;
+    --asleep-bg: #252a4a; --asleep-fg: #b9bff0;
+    --weekend-bg: #2f2350; --weekend-fg: #cdb6ff;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0d1020;
+  --bg-grad: radial-gradient(1000px 600px at 0% -10%, #1c2550 0%, transparent 60%),
+    radial-gradient(800px 500px at 110% 0%, #2a1c3d 0%, transparent 55%);
+  --surface: #171b2e;
+  --surface-2: #1e2339;
+  --fg: #e9ebf5;
+  --muted: #9aa1b8;
+  --border: #2a3050;
+  --accent: #7aa2ff;
+  --accent-fg: #0d1020;
+  --accent-soft: #23305a;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 30px rgb(0 0 0 / 0.35);
+  --face-bg: #f7f8fc;
+  --face-fg: #1b1f2a;
+  --night-bg: #0b0e1c;
+  --night-card: linear-gradient(180deg, #151933 0%, #10142a 100%);
+  --flip-bg: #0b0d14;
+  --work-bg: #163a25; --work-fg: #8fe0aa;
+  --morning-bg: #3b3012; --morning-fg: #f3cf6b;
+  --evening-bg: #3d2416; --evening-fg: #f5ad7c;
+  --asleep-bg: #252a4a; --asleep-fg: #b9bff0;
+  --weekend-bg: #2f2350; --weekend-fg: #cdb6ff;
+}
