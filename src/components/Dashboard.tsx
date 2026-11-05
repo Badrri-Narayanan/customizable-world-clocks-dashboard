@@ -6,7 +6,9 @@ import {
   TouchSensor,
   useSensor,
   useSensors,
+  type Announcements,
   type DragEndEvent,
+  type UniqueIdentifier,
 } from '@dnd-kit/core';
 import { rectSortingStrategy, SortableContext, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -82,6 +84,18 @@ export function Dashboard() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
+  const order = state.cities.map((c) => c.id);
+  const nameOf = (id: UniqueIdentifier) => byId.get(String(id))?.name ?? 'City';
+  const position = (id?: UniqueIdentifier) => `position ${order.indexOf(String(id)) + 1} of ${order.length}`;
+  const announcements: Announcements = {
+    onDragStart: ({ active }) => `Picked up ${nameOf(active.id)}.`,
+    onDragOver: ({ active, over }) =>
+      over && over.id !== active.id ? `${nameOf(active.id)} moved to ${position(over.id)}.` : undefined,
+    onDragEnd: ({ active, over }) =>
+      over ? `${nameOf(active.id)} dropped at ${position(over.id)}.` : `${nameOf(active.id)} dropped.`,
+    onDragCancel: ({ active }) => `Moving ${nameOf(active.id)} was cancelled.`,
+  };
+
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) return;
     const ids = state.cities.map((c) => c.id);
@@ -138,7 +152,17 @@ export function Dashboard() {
           </div>
         )}
         {cities && visible.length > 0 && (
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={onDragEnd}
+            accessibility={{
+              announcements,
+              screenReaderInstructions: {
+                draggable: 'To reorder, press Space, use the arrow keys to move, then Space again to drop. Escape cancels.',
+              },
+            }}
+          >
             <SortableContext items={visible.map((e) => e.id)} strategy={rectSortingStrategy}>
               <ul className="grid">
                 {visible.map((entry) => (
