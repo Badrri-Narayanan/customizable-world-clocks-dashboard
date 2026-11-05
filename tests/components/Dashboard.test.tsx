@@ -51,9 +51,9 @@ test('meeting planner shifts every card and returns to now (AC12)', async () => 
   renderWithProviders(<Dashboard />);
   expect(within(await card('Sydney')).getByText('3:40 AM')).toBeInTheDocument();
   fireEvent.change(screen.getByRole('slider', { name: 'Meeting planner' }), { target: { value: '180' } });
-  expect(within(await card('Sydney')).getByText('6:40 AM')).toBeInTheDocument();
-  expect(within(await card('London')).getByText('7:40 PM')).toBeInTheDocument();
-  expect(screen.getByText(/Previewing Thu 7:40 PM \(your time\)/)).toBeInTheDocument();
+  expect(within(await card('Sydney')).getByText('6:30 AM')).toBeInTheDocument();
+  expect(within(await card('London')).getByText('7:30 PM')).toBeInTheDocument();
+  expect(screen.getByText(/Previewing Thu 7:30 PM \(your time\)/)).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Back to now' }));
   expect(within(await card('Sydney')).getByText('3:40 AM')).toBeInTheDocument();
   expect(screen.queryByText(/Previewing/)).toBeNull();

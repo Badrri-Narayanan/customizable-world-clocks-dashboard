@@ -77,12 +77,13 @@ test('menu: custom hours change the badge and show a marker', async () => {
   renderWithProviders(<Cards />);
   await user.click(screen.getByRole('button', { name: 'Options for Sydney' }));
   await user.click(screen.getByRole('button', { name: 'Set custom hours' }));
-  const asleepFrom = screen.getByLabelText('Probably asleep from');
-  await user.clear(asleepFrom);
-  await user.type(asleepFrom, '05:00');
+  const workFrom = screen.getByLabelText('Working hours from');
+  await user.clear(workFrom);
+  await user.type(workFrom, '03:00');
   await user.click(screen.getByRole('button', { name: 'Save hours' }));
   const c = within(card('Sydney'));
   expect(c.getByText('custom hours')).toBeInTheDocument();
+  expect(c.getByText('Working hours')).toBeInTheDocument();
   expect(c.queryByText('Probably asleep')).toBeNull();
 });
 

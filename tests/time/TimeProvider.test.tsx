@@ -21,11 +21,19 @@ test('now advances every second', () => {
   expect(result.current.now).toBe(t1 + 1000);
 });
 
-test('planner offset shifts instant (AC12)', () => {
+test('planner offset shifts instant from the current quarter hour (AC12, review #7)', () => {
   const { result } = renderHook(() => useTime(), { wrapper });
   act(() => result.current.setPlannerMinutes(180));
   expect(result.current.plannerMinutes).toBe(180);
-  expect(result.current.instant - result.current.now).toBe(180 * 60000);
+  // now is 16:40:00.5 → quarter-hour anchor 16:30 → +3h = 19:30:00 exactly
+  expect(result.current.instant).toBe(Date.UTC(2026, 10, 5, 19, 30));
+  act(() => result.current.setPlannerMinutes(15));
+  expect(result.current.instant).toBe(Date.UTC(2026, 10, 5, 16, 45));
+});
+
+test('at zero the instant is the live time', () => {
+  const { result } = renderHook(() => useTime(), { wrapper });
+  expect(result.current.instant).toBe(result.current.now);
 });
 
 test.each([

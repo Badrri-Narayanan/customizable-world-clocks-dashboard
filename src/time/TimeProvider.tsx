@@ -9,6 +9,11 @@ const TimeContext = createContext<Ctx | null>(null);
 export const snapPlannerMinutes = (m: number): number =>
   Math.min(PLANNER_MAX_MINUTES, Math.max(0, Math.round(m / PLANNER_STEP_MINUTES) * PLANNER_STEP_MINUTES));
 
+const QUARTER_MS = PLANNER_STEP_MINUTES * 60_000;
+/** Live time at 0; otherwise whole quarter-hour slots counted from the current quarter (16:40 + 3h → 19:30). */
+export const plannedInstant = (now: number, minutes: number): number =>
+  minutes > 0 ? Math.floor(now / QUARTER_MS) * QUARTER_MS + minutes * 60_000 : now;
+
 /** One ticker for every clock: reads Date.now() on each whole second and whenever the page becomes visible. */
 export function TimeProvider({ children }: { children: ReactNode }) {
   const [now, setNow] = useState(() => Date.now());
@@ -35,7 +40,7 @@ export function TimeProvider({ children }: { children: ReactNode }) {
 
   const setPlannerMinutes = useCallback((m: number) => setRaw(snapPlannerMinutes(m)), []);
   const value = useMemo(
-    () => ({ now, plannerMinutes, setPlannerMinutes, instant: now + plannerMinutes * 60000 }),
+    () => ({ now, plannerMinutes, setPlannerMinutes, instant: plannedInstant(now, plannerMinutes) }),
     [now, plannerMinutes, setPlannerMinutes],
   );
   return <TimeContext.Provider value={value}>{children}</TimeContext.Provider>;

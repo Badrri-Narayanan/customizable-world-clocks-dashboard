@@ -69,10 +69,27 @@ export function searchCities(cities: City[], query: string, limit = 20): City[] 
   return scored.slice(0, limit).map((s) => s.city);
 }
 
+const canonCache = new Map<string, string>();
+/** Browsers report different IDs for the same zone (Chromium: Asia/Calcutta for Asia/Kolkata); compare canonical forms. */
+export function canonicalZone(zone: string): string {
+  let c = canonCache.get(zone);
+  if (c === undefined) {
+    try {
+      c = new Intl.DateTimeFormat('en', { timeZone: zone }).resolvedOptions().timeZone;
+    } catch {
+      c = zone;
+    }
+    canonCache.set(zone, c);
+  }
+  return c;
+}
+
 export function findHomeCity(cities: City[], zone: string): City | undefined {
-  const inZone = cities.filter((c) => c.zone === zone);
+  const target = canonicalZone(zone);
+  const inZone = cities.filter((c) => c.zone === zone || canonicalZone(c.zone) === target);
   if (!inZone.length) return undefined;
-  const named = normalise((zone.split('/').pop() ?? '').replace(/_/g, ' '));
+  const zoneCity = (z: string) => normalise((z.split('/').pop() ?? '').replace(/_/g, ' '));
+  const named = new Set([zoneCity(zone), ...inZone.map((c) => zoneCity(c.zone))]);
   const byPop = [...inZone].sort((a, b) => b.pop - a.pop);
-  return byPop.find((c) => normalise(c.name) === named) ?? byPop[0];
+  return byPop.find((c) => named.has(normalise(c.name))) ?? byPop[0];
 }

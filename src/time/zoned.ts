@@ -10,9 +10,17 @@ export function zoned(zone: string, instant: number): DateTime {
   return DateTime.fromMillis(instant, { zone });
 }
 
-/** A local Date whose wall-clock fields equal `dt`'s, for libraries that read local fields (react-clock). */
+/**
+ * A local Date whose hour/minute/second equal `dt`'s, for libraries that read local fields (react-clock).
+ * Anchored to a fixed date rather than dt's own date: if dt's wall time fell inside the *browser's* DST gap
+ * on that date, the engine would shift the hour. Only the time-of-day fields are meaningful.
+ */
 export function toWallClockDate(dt: DateTime): Date {
-  return new Date(dt.year, dt.month - 1, dt.day, dt.hour, dt.minute, dt.second, dt.millisecond);
+  for (let day = 1; day <= 7; day++) {
+    const d = new Date(2001, 0, day, dt.hour, dt.minute, dt.second, dt.millisecond);
+    if (d.getHours() === dt.hour && d.getMinutes() === dt.minute) return d;
+  }
+  return new Date(2001, 0, 1, dt.hour, dt.minute, dt.second, dt.millisecond);
 }
 
 export function offsetDiffLabel(home: string, zone: string, instant: number): string {
@@ -34,27 +42,55 @@ export function dayRelation(home: string, zone: string, instant: number): DayRel
   return 'same';
 }
 
-export function dstChange(zone: string, instant: number, windowDays = 7): DstChange | null {
-  const windowMs = windowDays * DAY_MS;
-  let nearest: { at: number; delta: number } | null = null;
-  let prevOffset = zoned(zone, instant - windowMs).offset;
-  for (let t = instant - windowMs + HOUR_MS; t <= instant + windowMs; t += HOUR_MS) {
-    const offset = zoned(zone, t).offset;
-    if (offset !== prevOffset && (!nearest || Math.abs(t - instant) < Math.abs(nearest.at - instant))) {
-      nearest = { at: t, delta: offset - prevOffset };
-    }
-    prevOffset = offset;
+type Transition = { at: number; delta: number } | null;
+const transitionCache = new Map<string, Transition>();
+const offsetAt = (zone: string, t: number) => zoned(zone, t).offset;
+
+/** Finds the instant (to the minute) between lo and hi where the zone's offset changes. */
+function bisect(zone: string, lo: number, hi: number): Transition {
+  const before = offsetAt(zone, lo);
+  const after = offsetAt(zone, hi);
+  while (hi - lo > 60_000) {
+    const mid = Math.floor((lo + hi) / 2);
+    if (offsetAt(zone, mid) === before) lo = mid;
+    else hi = mid;
   }
-  if (!nearest) return null;
+  return { at: hi, delta: after - before };
+}
+
+/** Nearest offset change within ±windowDays, cached per zone and hour so per-second ticks stay cheap. */
+function nearestTransition(zone: string, instant: number, windowMs: number): Transition {
+  const key = `${zone}|${windowMs}|${Math.floor(instant / HOUR_MS)}`;
+  if (transitionCache.has(key)) return transitionCache.get(key)!;
+  const lo = instant - windowMs;
+  const hi = instant + windowMs;
+  const [oLo, oNow, oHi] = [offsetAt(zone, lo), offsetAt(zone, instant), offsetAt(zone, hi)];
+  let found: Transition = null;
+  if (oLo !== oNow || oNow !== oHi) {
+    const past = oLo !== oNow ? bisect(zone, lo, instant) : null;
+    const future = oNow !== oHi ? bisect(zone, instant, hi) : null;
+    found =
+      past && future ? (instant - past.at <= future.at - instant ? past : future) : (past ?? future);
+  }
+  if (transitionCache.size > 1000) transitionCache.clear();
+  transitionCache.set(key, found);
+  return found;
+}
+
+export function dstChange(zone: string, instant: number, windowDays = 7): DstChange | null {
+  const t = nearestTransition(zone, instant, windowDays * DAY_MS);
+  if (!t) return null;
+  const today = zoned(zone, instant).startOf('day');
+  const changeDay = zoned(zone, t.at).startOf('day');
   return {
-    direction: nearest.delta > 0 ? 'forward' : 'back',
-    days: Math.round(Math.abs(nearest.at - instant) / DAY_MS),
-    past: nearest.at <= instant,
+    direction: t.delta > 0 ? 'forward' : 'back',
+    days: Math.abs(Math.round(changeDay.diff(today, 'days').days)),
+    past: t.at <= instant,
   };
 }
 
 export function dstNoticeText(c: DstChange): string {
-  if (c.days === 0) return `Clocks go ${c.direction} today`;
+  if (c.days === 0) return c.past ? `Clocks went ${c.direction} today` : `Clocks go ${c.direction} today`;
   const unit = c.days === 1 ? 'day' : 'days';
   return c.past ? `Clocks went ${c.direction} ${c.days} ${unit} ago` : `Clocks go ${c.direction} in ${c.days} ${unit}`;
 }

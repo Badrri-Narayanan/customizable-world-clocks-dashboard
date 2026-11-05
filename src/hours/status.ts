@@ -25,12 +25,18 @@ export const STATUS_LABEL: Record<Status, string> = {
 export const inRange = (minute: number, r: Range): boolean =>
   r.start <= r.end ? minute >= r.start && minute < r.end : minute >= r.start || minute < r.end;
 
+const ORDER = ['work', 'morning', 'evening', 'asleep'] as const;
+
+/**
+ * Named ranges are checked in precedence order (work, morning, evening, asleep) so a user's custom range wins
+ * over the broader asleep range it overlaps. A minute in no range takes the range that starts next.
+ */
 export function statusAt(dt: DateTime, rule: HoursRule): Status {
   const minute = dt.hour * 60 + dt.minute;
-  if (inRange(minute, rule.asleep)) return 'asleep';
-  if (inRange(minute, rule.evening)) return 'evening';
-  if (inRange(minute, rule.work)) return rule.weekend.includes(dt.weekday) ? 'weekend' : 'work';
-  return 'morning';
+  const hit = ORDER.find((k) => inRange(minute, rule[k])) ?? ORDER.reduce((best, k) =>
+    (rule[k].start - minute + 1440) % 1440 < (rule[best].start - minute + 1440) % 1440 ? k : best,
+  );
+  return hit === 'work' && rule.weekend.includes(dt.weekday) ? 'weekend' : hit;
 }
 
 export const isNight = (s: Status): boolean => s === 'asleep' || s === 'evening';
